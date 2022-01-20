@@ -5,6 +5,8 @@ TASK_STATE = {
     "WAITING":2
 }
 class task_struct:
+    """Chứa thông tin của tiến trihf
+    """
     def __init__(self, 
                     state,
                     pid = 0,
@@ -22,6 +24,8 @@ class task_struct:
 
 
 class ProcessContext:
+    """Chứa ngữ cảnh phần cứu khi xảy ra context switch
+    """
     def __init__(self):
         self.register = {"_R1":0,
                           "_R2":0,
@@ -30,6 +34,14 @@ class ProcessContext:
         self.switched = False
         
 def load_instruct(file_name):
+    """Tải mã code từ file code
+
+    Args:
+        file_name (string): Địa chỉ file chứa code
+
+    Returns:
+        [list]: Danh sách các lệnh
+    """
     instructors = []
     file = open(file_name, 'r')
     lines = file.readlines()
