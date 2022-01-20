@@ -1,4 +1,6 @@
 class Decoder:
+    """Giải mã và thực thi các lệnh khi tiến trình đươc chạy
+    """
     def __init__(self, cpu):
         self.cpu = cpu
     
