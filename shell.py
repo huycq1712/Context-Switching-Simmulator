@@ -114,15 +114,18 @@ class Shell:
             if self.cpu.IO_FLAG:
                 self.cpu.wake_up("io.txt")
                 
-            # hết time slice mà tiến trình vẫn chưa xong
+            # hết time slice mà tiến trình vẫn chưa xong và trong RunQueue vẫn còn tiến trình
             if self.cpu.scheduler.time_slice == self.cpu.scheduler.QT_time and self.cpu.RunQueue.num > 1 and flag != 1:
                 print("============================Time Quantum Out===============================")
                 print("============================CONTEXT SWITCH=================================")
+                
+                # Tiến trình FinishTask ở đây được đặt vào
                 self.cpu.scheduler.time_slice = 0
                 self.cpu.FinishTask = self.cpu.RunQueue.deQueue().task_struct
                 self.cpu.CurTask = self.cpu.RunQueue.header.next.task_struct
                 self.cpu.RunQueue.enQueue(Node(self.cpu.FinishTask))
                 
+                # Context Switch
                 self.cpu.swap_out(self.cpu.FinishTask)
                 print("Swap out process: Process {}".format(self.cpu.FinishTask.pid))
                 print("stack:",self.cpu.FinishTask.stack)
@@ -132,8 +135,6 @@ class Shell:
                 print("stack:",self.cpu.CurTask.stack)
                 print("regis:",self.cpu.CurTask.process_context.register)
                 print("============================================================================")
-                
-            # Nếu mà không còn tiên trình nào thì kết thúc
             
             time.sleep(1)
         
@@ -150,6 +151,14 @@ class Shell:
         return 1
     
     def excute_cmd(self, cmd):
+        """Thực hiện các lệnh shell được người dùng nhập vào
+
+        Args:
+            cmd (string): Lệnh Shell được sử dụng
+
+        Returns:
+            int: Tín hiệu thông báo nếu trả về 1 (exit) thì chương trình mô phỏng sẽ kết thúc 
+        """
         args = cmd.split(" ")
         cmd_lib = {
             "run":self.run_cmd,

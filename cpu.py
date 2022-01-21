@@ -8,6 +8,12 @@ class CPU:
     """Mô phỏng một CPU với bộ lập dịch, bộ decoder và các hàng đợi
     """
     def __init__(self, QTtime, maxPID = 100):
+        """Khởi tạo CPU
+
+        Args:
+            QTtime (string): Time quantum cho bộ lập lịch Round Robin
+            maxPID (int, optional): [description]. Defaults to 100.
+        """
         self.clock = 0
         self.pidmanager = PIDmanager(maxPID)
         self.decoder = Decoder(self)

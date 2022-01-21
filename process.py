@@ -1,4 +1,3 @@
-
 TASK_STATE = {
     "RUNNING": 0, 
     "READY":1,
@@ -12,15 +11,22 @@ class task_struct:
                     pid = 0,
                     excute_code=None,
                     arrival_time=0):
-            self.state = state
-            self.pid = pid
-            self.pc = 0;
-            self.stack = {}
-            self.excute_code = excute_code
-            self.process_context = ProcessContext()
-            self.arrival_time = arrival_time
-            
-            self.instrucMem = load_instruct(self.excute_code)
+        """Khởi tạo thông tin một tiến trình
+
+        Args:
+            state (int): Trạng thái tiến trình
+            pid (int, optional): Mã định danh của tiến trình. Defaults to 0.
+            excute_code (string, optional): Tên file chứa mã code cho tiến trình. Defaults to None.
+            arrival_time (int, optional): Thời gian đến của tiến trình. Defaults to 0.
+        """
+        self.state = state
+        self.pid = pid
+        self.pc = 0;
+        self.stack = {}
+        self.excute_code = excute_code
+        self.process_context = ProcessContext()
+        self.arrival_time = arrival_time
+        self.instrucMem = load_instruct(self.excute_code)
 
 
 class ProcessContext:
@@ -40,7 +46,7 @@ def load_instruct(file_name):
         file_name (string): Địa chỉ file chứa code
 
     Returns:
-        [list]: Danh sách các lệnh
+        List: Danh sách các lệnh
     """
     instructors = []
     file = open(file_name, 'r')

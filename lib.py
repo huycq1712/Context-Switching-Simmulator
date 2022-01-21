@@ -21,6 +21,7 @@ class Queue:
         Node.next = self.tailer
         self.tailer.prev = Node
         self.num = self.num + 1
+        return Node
         
     def deQueue(self):
         if self.num == 0:
