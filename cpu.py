@@ -25,10 +25,12 @@ class CPU:
         self.CurTask = None
     
     def rescheduler(self):
-        """Tái lập lịch
+        """Tái lập lịch khi tiến trình hoàn thành.
         """
         self.FinishTask = self.RunQueue.deQueue().task_struct
         self.CurTask = self.RunQueue.header.next.task_struct
+        
+        # nếu trong RunQueue còn tiến trình thì sẽ cần context switch để load tiến trình mới vào. 
         if self.RunQueue.num != 0:
             print("============================CONTEXT SWITCH=================================")
             print("------------------------------------------------------------------------")
@@ -108,6 +110,11 @@ class CPU:
         self.register["_R4"] = 0
     
     def wake_up(self, io_file):
+        """Đánh thưc tiến trình dậy khi IO được thỏa mãn, io ở đây được mô phỏng thông qua file io.txt
+
+        Args:
+            io_file (string): file chứa tín hiệu 
+        """
         file = open(io_file, "r")
         lines = file.readlines()
         for line in lines:
@@ -132,6 +139,11 @@ class PIDmanager:
         self.used_pid = [0]*self.max
     
     def createPid(self, process):
+        """Tạo ra thông tin định danh cho tiến trình
+
+        Args:
+            process (task_struct): Tiến trình cần cấp phát
+        """
         if self.max_cur == self.max:
             process.pid = self.used_pid.index(0)
             self.used_pid[self.used_pid.index(0)] = 1
