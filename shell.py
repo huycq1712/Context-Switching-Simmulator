@@ -25,7 +25,7 @@ class Shell:
         self.cpu = CPU(int(args[1]))
         print("Khởi tạo CPU - Ok")
         print("Khởi tạo Decoder - Ok")
-        print("Khởi tạo Scheduler - ok")
+        print("Khởi tạo Scheduler Round Robin - ok")
         print("Time Quantum: {}".format(args[1]))
         print("")
     
@@ -46,7 +46,8 @@ class Shell:
             self.cpu.preQueue[int(args[2])] = [process,]
         
         print("Tạo tiến trình thành công: Process {}".format(process.pid))
-        print("file excute code: {}".format(args[2]))
+        print("file excute code: {}".format(args[1]))
+        print("")
     
     def run_cmd(self, cmd):
         """Khởi chạy chương trình mô phỏng
@@ -59,13 +60,14 @@ class Shell:
         print("============================================================================")
         while(1):
             print("")
+            # Nếu không còn tiến trình nào trong hệ thống thì sẽ kết thúc mô phỏng
             if self.cpu.RunQueue.num + self.cpu.WaitQueue.num + len(self.cpu.preQueue) == 0:
                 print("============================================================================")
                 print(">>>>>>>>>>>>>>>>>>>>>>>      DONE ALL TASK!!!      <<<<<<<<<<<<<<<<<<<<<<<<<")
                 print("============================================================================")
                 break
-            print("clock:", self.cpu.clock)
-            # Kiểm tra hàng đợi xem có tiến trình nào muốn vào tại clock 
+            print("Time clock:", self.cpu.clock)
+            # Kiểm tra hàng đợi xem có tiến trình nào muốn vào tại time clock 
             if self.cpu.clock in self.cpu.preQueue.keys():
                 for process in self.cpu.preQueue[self.cpu.clock]:
                     self.cpu.RunQueue.enQueue(Node(process))
@@ -79,16 +81,7 @@ class Shell:
             # Nếu tiến chỉ còn tiến trình đang đợi thì sẽ tiếp tục đợi IO
             if self.cpu.WaitQueue.num !=0 and self.cpu.RunQueue.num == 0 and self.cpu.IO_FLAG:
                 self.cpu.clock = self.cpu.clock + 1
-                file = open("io.txt", "r")
-                lines = file.readlines()
-                for line in lines:
-                    if line == "in":
-                        wakeup_task = self.cpu.WaitQueue.deQueue().task_struct
-                        wakeup_task.state = TASK_STATE["RUNNING"]
-                        print("Wake up process: ", wakeup_task.pid)
-                        self.cpu.RunQueue.enQueue(Node(wakeup_task))
-                        self.cpu.CurTask = self.cpu.RunQueue.header.next.task_struct
-                        self.cpu.IO_FLAG = 0
+                self.cpu.wake_up("io.txt")
                 time.sleep(1)
                 continue
             
@@ -99,37 +92,27 @@ class Shell:
             #thực thi câu lệnh
             flag = self.cpu.decoder.excute()
             
-            #nếu chạy đến lệnh end => tiến trình hoàn  => cần phải tải tiến trình tiếp theo lên nếu có
-            if flag == 1:
+            #nếu chạy đến lệnh end => tiến trình hoàn thành  => cần phải tải tiến trình tiếp theo lên nếu có
+            if flag == 1 :
                 print("Finish Process: Process {}".format(self.cpu.CurTask.pid))
                 print("============================Finish Process {}===============================".format(self.cpu.CurTask.pid))
-                print("============================CONTEXT SWITCH=================================")
+                
                 self.cpu.release()
                 self.cpu.scheduler.time_slice = 0
                 self.cpu.rescheduler()
-                print("===========================================================================")
                 self.cpu.pidmanager.removePid(self.cpu.FinishTask)
                 self.cpu.remove_from_tasklist(self.cpu.FinishTask)
             
             # nếu có câu lệnh yêu cầu IO
             elif flag == 2:
-                print("                               IO request                           ")
                 self.cpu.IO_handle()
                 if self.cpu.RunQueue.num + self.cpu.WaitQueue.num + len(self.cpu.preQueue) == 0:
                     print("done")
                     continue
             
             # nếu yêu cầu IO vẫn chưa được thỏa mãn
-            elif self.cpu.IO_FLAG:
-                file = open("io.txt", "r")
-                lines = file.readlines()
-                for line in lines:
-                    if line == "in":
-                        wakeup_task = self.cpu.WaitQueue.deQueue().task_struct
-                        wakeup_task.state = TASK_STATE["RUNNING"]
-                        print("Wake up process: ", wakeup_task.pid)
-                        self.cpu.RunQueue.enQueue(Node(wakeup_task))
-                        self.cpu.IO_FLAG = 0
+            if self.cpu.IO_FLAG:
+                self.cpu.wake_up("io.txt")
                 
             # hết time slice mà tiến trình vẫn chưa xong
             if self.cpu.scheduler.time_slice == self.cpu.scheduler.QT_time and self.cpu.RunQueue.num > 1 and flag != 1:

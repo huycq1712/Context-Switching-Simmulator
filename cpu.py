@@ -30,10 +30,15 @@ class CPU:
         self.FinishTask = self.RunQueue.deQueue().task_struct
         self.CurTask = self.RunQueue.header.next.task_struct
         if self.RunQueue.num != 0:
+            print("============================CONTEXT SWITCH=================================")
             print("------------------------------------------------------------------------")
-            print("Load process: process", self.CurTask.pid)
+            print("Load process: Process", self.CurTask.pid)
+            print("Swap in: Process", self.CurTask.pid)
+            print("stack:",self.CurTask.stack)
+            print("regis:",self.CurTask.process_context.register)
             self.swap_in(self.CurTask)
             print("------------------------------------------------------------------------")
+            print("===========================================================================")
         
     def swap_in(self, process):
         """Cơ chế Swap in trong context switch
@@ -71,16 +76,23 @@ class CPU:
         """Xử lý tiến trình khi có yêu cầu I/O
         """
         print("------------------------------------------------------------------------")
+        print("                                IO request                              ")
+        print("------------------------------------------------------------------------")
         print("                Đưa tiến trình Process {} vào WaitQueue                 ".format(self.CurTask.pid))
         self.CurTask.state = TASK_STATE["WAITING"]
         self.RunQueue.deQueue()
         self.WaitQueue.enQueue(Node(self.CurTask))
         self.swap_out(self.CurTask)
+        print("Swap out process: Process {}".format(self.CurTask.pid))
         print("stack:",self.CurTask.stack)
         print("regis:",self.CurTask.process_context.register)
         
         if self.RunQueue.num != 0:
             self.CurTask = self.RunQueue.header.next.task_struct
+            self.swap_in(self.CurTask)
+            print("Swap in process: Process {}".format(self.CurTask.pid))
+            print("stack:",self.CurTask.stack)
+            print("regis:",self.CurTask.process_context.register)
         else:
             self.CurTask = None
         print("RunQueue:", self.RunQueue.get_id_process())
@@ -94,6 +106,19 @@ class CPU:
         self.register["_R2"] = 0
         self.register["_R3"] = 0
         self.register["_R4"] = 0
+    
+    def wake_up(self, io_file):
+        file = open(io_file, "r")
+        lines = file.readlines()
+        for line in lines:
+            if line == "respone":
+                wakeup_task = self.WaitQueue.deQueue().task_struct
+                wakeup_task.state = TASK_STATE["RUNNING"]
+                print("                               IO respone                           ")
+                print("===> Wake up process: Process ", wakeup_task.pid)
+                self.RunQueue.enQueue(Node(wakeup_task))
+                self.CurTask = self.RunQueue.header.next.task_struct
+                self.IO_FLAG = 0
     
     
 class PIDmanager:

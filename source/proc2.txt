@@ -1,5 +1,4 @@
 set a 4
 mul 3 a _R4
-add 3 a _R2
-add 3 a _R3
+set b 5
 end
