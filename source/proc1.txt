@@ -2,5 +2,5 @@ set a 4
 set b 5
 add 3 a _R2
 iorequest
-add 3 b _R3
+add 3 _R2 _R3
 end

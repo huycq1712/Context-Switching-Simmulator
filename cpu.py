@@ -114,11 +114,13 @@ class CPU:
             if line == "respone":
                 wakeup_task = self.WaitQueue.deQueue().task_struct
                 wakeup_task.state = TASK_STATE["RUNNING"]
-                print("                               IO respone                           ")
-                print("===> Wake up process: Process ", wakeup_task.pid)
+                print("------------------------------------------------------------------------")
+                print("                                IO respone                              ")
+                print("===> Wake up process: Process {}".format(wakeup_task.pid))
                 self.RunQueue.enQueue(Node(wakeup_task))
                 self.CurTask = self.RunQueue.header.next.task_struct
                 self.IO_FLAG = 0
+                print("------------------------------------------------------------------------")
     
     
 class PIDmanager:
