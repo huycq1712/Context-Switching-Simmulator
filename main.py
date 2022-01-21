@@ -19,5 +19,7 @@ if __name__ == '__main__':
     while(1):
         in_cmd = input(">> ")
         res = myshell.excute_cmd(in_cmd)
+        
+        # exit
         if res == 1:
             break
