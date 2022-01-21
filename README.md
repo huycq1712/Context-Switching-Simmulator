@@ -10,3 +10,7 @@
 * Khởi tạo các giá trị cho trình mô phỏng: 'boot'
 * Tạo tiến trình để đưa vào hệ thống: 'create [path code] [arrival time]'
 * Để bắt đầu mô phỏng quá trình chạy: 'run'
+
+### Lưu ý để mô phỏng tín hiệu IO:
+* Dùng file io.txt làm nơi chứa tín hiệu phản hồi IO
+* Nhập "respone" vào file io.txt để tượng trưng cho tín hiệu IO đến.
