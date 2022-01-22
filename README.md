@@ -7,7 +7,7 @@
 
 ### Cách dùng:
 * Để bắt đầu chương trình: 'python3 main.py'
-* Khởi tạo các giá trị cho trình mô phỏng: 'boot'
+* Khởi tạo các giá trị cho trình mô phỏng: 'boot [time quantum]'
 * Tạo tiến trình để đưa vào hệ thống: 'create [path code] [arrival time]'
 * Để bắt đầu mô phỏng quá trình chạy: 'run'
 
